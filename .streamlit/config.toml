@@ -1,0 +1,8 @@
+[server]
+# 로컬 전용: 이 컴퓨터에서만 접속 (API 키를 쓰는 앱이므로 외부에 열지 않는다)
+address = "localhost"
+port = 8501
+maxUploadSize = 200
+
+[browser]
+gatherUsageStats = false

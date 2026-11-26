@@ -1,0 +1,22 @@
+# secrets
+.env
+
+# job outputs
+jobs/
+output/
+
+# python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# node / remotion
+remotion/node_modules/
+remotion/out/
+
+# omc transient state
+.omc/state/
+
+# 개발 도구 산출물 (계획·스펙 초안)
+.omc/
