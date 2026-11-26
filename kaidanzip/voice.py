@@ -28,7 +28,7 @@ SPEED_MIN, SPEED_MAX = 0.7, 1.2  # ElevenLabs voice_settings.speed 허용 범위
 
 
 def voice_id() -> str:
-    return os.environ.get("MD2SHORT_VOICE_ID") or DEFAULT_VOICE_ID
+    return os.environ.get("KAIDANZIP_VOICE_ID") or DEFAULT_VOICE_ID
 
 
 def build_request_text(board: Storyboard) -> tuple[str, list[int]]:
@@ -60,7 +60,7 @@ def request_body(text: str, speed: float) -> dict:
 
 
 def call_elevenlabs(text: str, vid: str, speed: float = 1.0) -> dict:
-    if os.environ.get("MD2SHORT_FAKE_TTS"):
+    if os.environ.get("KAIDANZIP_FAKE_TTS"):
         return fake_tts.fake_response(text, speed)
     key = os.environ.get("ELEVENLABS_API_KEY")
     if not key:
@@ -83,7 +83,7 @@ def call_elevenlabs(text: str, vid: str, speed: float = 1.0) -> dict:
     if resp.status_code == 402:
         raise ExternalApiError(
             f"ElevenLabs 요금제에서 이 voice({vid})를 API로 쓸 수 없습니다(402). "
-            "유료 요금제로 올리거나, --voice-id 또는 .env의 MD2SHORT_VOICE_ID로 계정에서 쓸 수 있는 기본(premade) voice를 지정해 주세요.\n"
+            "유료 요금제로 올리거나, --voice-id 또는 .env의 KAIDANZIP_VOICE_ID로 계정에서 쓸 수 있는 기본(premade) voice를 지정해 주세요.\n"
             f"원문: {resp.text[:300]}"
         )
     if resp.status_code >= 400:

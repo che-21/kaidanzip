@@ -9,8 +9,8 @@ GitHub는 OIDC를 제공하지 않아 Streamlit 내장 st.login 대신 OAuth 웹
 
 설정 (.env)
   GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET   GitHub OAuth App 값 (둘 다 있으면 로그인 켜짐)
-  MD2SHORT_ALLOWED_GITHUB_USERS            쉼표로 구분한 허용 GitHub ID. 비어 있으면 아무도 못 들어옴
-  MD2SHORT_PUBLIC_URL                      OAuth App의 callback URL (기본 http://localhost:8501)
+  KAIDANZIP_ALLOWED_GITHUB_USERS            쉼표로 구분한 허용 GitHub ID. 비어 있으면 아무도 못 들어옴
+  KAIDANZIP_PUBLIC_URL                      OAuth App의 callback URL (기본 http://localhost:8501)
 """
 
 from __future__ import annotations
@@ -50,11 +50,11 @@ class AuthConfig:
 
 
 def load_config() -> AuthConfig:
-    allowed = {u.strip().lower() for u in os.environ.get("MD2SHORT_ALLOWED_GITHUB_USERS", "").split(",") if u.strip()}
+    allowed = {u.strip().lower() for u in os.environ.get("KAIDANZIP_ALLOWED_GITHUB_USERS", "").split(",") if u.strip()}
     return AuthConfig(
         client_id=os.environ.get("GITHUB_CLIENT_ID", ""),
         client_secret=os.environ.get("GITHUB_CLIENT_SECRET", ""),
-        redirect_uri=os.environ.get("MD2SHORT_PUBLIC_URL", "http://localhost:8501").rstrip("/"),
+        redirect_uri=os.environ.get("KAIDANZIP_PUBLIC_URL", "http://localhost:8501").rstrip("/"),
         allowed=allowed,
     )
 
@@ -133,6 +133,6 @@ def complete_login(cfg: AuthConfig, code: str, state: str) -> dict:
     user = fetch_user(exchange_code(cfg, code))
     if not is_allowed(cfg, user["login"]):
         raise AuthError(
-            f"'{user['login']}' 계정은 이 MD2Short를 쓸 수 없습니다. 관리자에게 .env의 "
-            "MD2SHORT_ALLOWED_GITHUB_USERS에 추가해 달라고 요청하세요.")
+            f"'{user['login']}' 계정은 이 괴담모음집를 쓸 수 없습니다. 관리자에게 .env의 "
+            "KAIDANZIP_ALLOWED_GITHUB_USERS에 추가해 달라고 요청하세요.")
     return user

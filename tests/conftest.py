@@ -3,8 +3,8 @@ from pathlib import Path
 
 import pytest
 
-from md2short import fake_tts, voice
-from md2short.storyboard import parse_storyboard
+from kaidanzip import fake_tts, voice
+from kaidanzip.storyboard import parse_storyboard
 
 ROOT = Path(__file__).resolve().parent.parent
 SAMPLE = ROOT / "sample.md"
@@ -39,11 +39,11 @@ def words_doc(board):
 @pytest.fixture
 def isolated(tmp_path, monkeypatch):
     """jobs/assets 위치를 tmp로 격리하고 가짜 TTS를 켠다."""
-    monkeypatch.setenv("MD2SHORT_JOBS_DIR", str(tmp_path / "jobs"))
-    monkeypatch.setenv("MD2SHORT_ASSETS_DIR", str(tmp_path / "assets"))
-    monkeypatch.setenv("MD2SHORT_FAKE_TTS", "synth")
-    monkeypatch.setenv("MD2SHORT_SUBTITLE_SPLIT", "rule")  # 테스트에서 OpenAI 호출 금지
-    monkeypatch.delenv("MD2SHORT_VOICE_ID", raising=False)
+    monkeypatch.setenv("KAIDANZIP_JOBS_DIR", str(tmp_path / "jobs"))
+    monkeypatch.setenv("KAIDANZIP_ASSETS_DIR", str(tmp_path / "assets"))
+    monkeypatch.setenv("KAIDANZIP_FAKE_TTS", "synth")
+    monkeypatch.setenv("KAIDANZIP_SUBTITLE_SPLIT", "rule")  # 테스트에서 OpenAI 호출 금지
+    monkeypatch.delenv("KAIDANZIP_VOICE_ID", raising=False)
     return tmp_path
 
 

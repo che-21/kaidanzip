@@ -18,7 +18,7 @@ from . import qc, render, voice
 from .assets import provided_from_folder
 from . import image_gen
 from .errors import (
-    EXIT_ABORTED, EXIT_OK, EXIT_QC_FAILED, ConfirmAborted, InputValidationError, Md2ShortError, PreflightError,
+    EXIT_ABORTED, EXIT_OK, EXIT_QC_FAILED, ConfirmAborted, InputValidationError, KaidanzipError, PreflightError,
     StateError,
 )
 from .paths import PROJECT_ROOT, assets_dir, jobs_dir, remotion_dir
@@ -86,7 +86,7 @@ def _finish(job_dir: Path, state: JobState, edl: dict, words_doc: dict, props: d
 
 
 def subtitle_mode(mode: str | None) -> str:
-    mode = mode or os.environ.get("MD2SHORT_SUBTITLE_SPLIT", "auto")
+    mode = mode or os.environ.get("KAIDANZIP_SUBTITLE_SPLIT", "auto")
     if mode not in ("auto", "ai", "rule"):
         raise PreflightError(f"--subtitle-split 값은 auto, ai, rule 중 하나여야 합니다: {mode}")
     return mode
@@ -222,8 +222,8 @@ def run(markdown: Path, images: Path | None, yes: bool = False, voice_id: str | 
     voice.validate_speed(speed)
     split_mode = subtitle_mode(subtitle_split)
     if voice_id:
-        os.environ["MD2SHORT_VOICE_ID"] = voice_id
-    fake = bool(os.environ.get("MD2SHORT_FAKE_TTS"))
+        os.environ["KAIDANZIP_VOICE_ID"] = voice_id
+    fake = bool(os.environ.get("KAIDANZIP_FAKE_TTS"))
     preflight(need_key=not fake, need_render=not skip_render)
     if images is None and not ai_images:
         raise PreflightError("--images 폴더를 지정하거나 --ai-images로 AI 이미지를 만들어 주세요.")
@@ -236,7 +236,7 @@ def run(markdown: Path, images: Path | None, yes: bool = False, voice_id: str | 
 
     job_dir, state, board, imgs = _start_with_echo(markdown, images, split_mode, job_config(speed, fake), ai_images)
     print_subtitles(board)
-    console.print("ElevenLabs 음성 생성 중..." if not fake else "가짜 TTS(MD2SHORT_FAKE_TTS)로 음성 생성 중...")
+    console.print("ElevenLabs 음성 생성 중..." if not fake else "가짜 TTS(KAIDANZIP_FAKE_TTS)로 음성 생성 중...")
     _, _, _, warnings = voice_and_plan(job_dir, state, board, imgs, speed)
     _print_warnings(warnings)
     return finish(job_dir, state, yes=yes, stdin=stdin, keep_staging=keep_staging, skip_render=skip_render)
@@ -263,7 +263,7 @@ def _mark_failed(state: JobState, failed_stage: str, exc: Exception) -> None:
     """어떤 예외든 job을 failed(terminal)로 남긴다. 상태 기록 자체가 실패해도 원래 예외를 가리지 않는다."""
     if state.status not in NON_TERMINAL:
         return
-    message = exc.message if isinstance(exc, Md2ShortError) else f"{type(exc).__name__}: {exc}"
+    message = exc.message if isinstance(exc, KaidanzipError) else f"{type(exc).__name__}: {exc}"
     try:
         state.transition("failed", failed_stage=failed_stage, error=message)
     except Exception:
@@ -288,7 +288,7 @@ def rerender(job_id: str, yes: bool = False, keep_staging: bool = False, stdin: 
     except StateError:
         raise StateError(
             f"이 job({state.status}, 실패 단계: {state.data.get('failed_stage')})은 다시 렌더할 수 없습니다. "
-            "음성 생성 이전 단계에서 실패한 job은 'md2short run'으로 새로 만들어 주세요."
+            "음성 생성 이전 단계에서 실패한 job은 'kaidanzip run'으로 새로 만들어 주세요."
         )
     preflight(need_key=False, need_render=True)
     render.verify_job_images(job_dir)
@@ -313,7 +313,7 @@ def regen_image(job_id: str, scene: int, prompt: str | None = None) -> int:
     image_gen.check_ready(True)
     img = image_gen.regenerate_scene_image(job_dir, scene, prompt)
     console.print(f"장면 {scene} 이미지를 다시 만들었습니다: {job_dir / 'inputs' / 'images' / img.job_name}")
-    console.print(f"다시 렌더하려면: md2short render {job_id}")
+    console.print(f"다시 렌더하려면: kaidanzip render {job_id}")
     return EXIT_OK
 
 

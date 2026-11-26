@@ -5,10 +5,10 @@ import httpx
 import pytest
 from typer.testing import CliRunner
 
-from md2short import image_gen
-from md2short.assets import image_size
-from md2short.cli import app
-from md2short.errors import ExternalApiError, InputValidationError
+from kaidanzip import image_gen
+from kaidanzip.assets import image_size
+from kaidanzip.cli import app
+from kaidanzip.errors import ExternalApiError, InputValidationError
 
 from .conftest import EMOTION, SAMPLE
 
@@ -20,7 +20,7 @@ def test_prompt_has_common_style_and_direction(board):
 
 
 def test_materialize_mixed_upload_and_ai(board, tmp_path, monkeypatch):
-    monkeypatch.setenv("MD2SHORT_FAKE_IMAGES", "1")
+    monkeypatch.setenv("KAIDANZIP_FAKE_IMAGES", "1")
     provided = {1: next(EMOTION.glob("0_*")), 3: next(EMOTION.glob("2_*"))}
     imgs, log = image_gen.materialize_images(board.scenes, tmp_path, provided, ai_missing=True)
     assert [i.source for i in imgs] == ["upload", "ai", "upload", "ai", "ai", "ai"]
@@ -43,7 +43,7 @@ class _Resp:
 
 
 def test_openai_request_shape(tmp_path, monkeypatch):
-    monkeypatch.delenv("MD2SHORT_FAKE_IMAGES", raising=False)
+    monkeypatch.delenv("KAIDANZIP_FAKE_IMAGES", raising=False)
     monkeypatch.setenv("OPENAI_API_KEY", "test")
     sent = {}
     png = image_gen._png_bytes(4, 6, "x")
@@ -61,7 +61,7 @@ def test_openai_request_shape(tmp_path, monkeypatch):
 
 
 def test_moderation_error_is_korean(tmp_path, monkeypatch):
-    monkeypatch.delenv("MD2SHORT_FAKE_IMAGES", raising=False)
+    monkeypatch.delenv("KAIDANZIP_FAKE_IMAGES", raising=False)
     monkeypatch.setenv("OPENAI_API_KEY", "test")
     monkeypatch.setattr(httpx.Client, "post",
                         lambda self, url, headers=None, json=None: _Resp(400, {"error": {"code": "moderation_blocked"}}))
@@ -71,7 +71,7 @@ def test_moderation_error_is_korean(tmp_path, monkeypatch):
 
 
 def test_cli_ai_images_and_regen(isolated, monkeypatch):
-    monkeypatch.setenv("MD2SHORT_FAKE_IMAGES", "1")
+    monkeypatch.setenv("KAIDANZIP_FAKE_IMAGES", "1")
     runner = CliRunner()
     res = runner.invoke(app, ["run", str(SAMPLE), "--ai-images", "--yes", "--skip-render"])
     assert res.exit_code == 0, res.output

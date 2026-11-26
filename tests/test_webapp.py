@@ -13,7 +13,7 @@ APP = str(ROOT / "webapp" / "app.py")
 
 @pytest.fixture
 def web_env(isolated, monkeypatch):
-    monkeypatch.setenv("MD2SHORT_FAKE_IMAGES", "1")
+    monkeypatch.setenv("KAIDANZIP_FAKE_IMAGES", "1")
     monkeypatch.setenv("OPENAI_API_KEY", "")       # .env의 실제 키로 AI 분할 호출 금지
     monkeypatch.setenv("ELEVENLABS_API_KEY", "")
     return isolated

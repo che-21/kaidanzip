@@ -6,8 +6,8 @@ import httpx
 import pytest
 from typer.testing import CliRunner
 
-from md2short.cli import app
-from md2short.tools import probe_video
+from kaidanzip.cli import app
+from kaidanzip.tools import probe_video
 
 from .conftest import SAMPLE
 

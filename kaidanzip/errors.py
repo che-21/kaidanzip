@@ -7,7 +7,7 @@ EXIT_ABORTED = 3
 EXIT_EXTERNAL = 4
 
 
-class Md2ShortError(Exception):
+class KaidanzipError(Exception):
     exit_code = EXIT_EXTERNAL
     stage = "unknown"
 
@@ -16,7 +16,7 @@ class Md2ShortError(Exception):
         self.message = message
 
 
-class InputValidationError(Md2ShortError):
+class InputValidationError(KaidanzipError):
     """연출표·이미지·사용자 입력 문제. TTS 호출 전에 발생한다."""
 
     exit_code = EXIT_INPUT
@@ -28,31 +28,31 @@ class InputValidationError(Md2ShortError):
         self.scene = scene
 
 
-class PreflightError(Md2ShortError):
+class PreflightError(KaidanzipError):
     exit_code = EXIT_INPUT
     stage = "preflight"
 
 
-class ConfirmAborted(Md2ShortError):
+class ConfirmAborted(KaidanzipError):
     exit_code = EXIT_ABORTED
     stage = "confirm"
 
 
-class ExternalApiError(Md2ShortError):
+class ExternalApiError(KaidanzipError):
     exit_code = EXIT_EXTERNAL
     stage = "voice"
 
 
-class AlignmentMismatchError(Md2ShortError):
+class AlignmentMismatchError(KaidanzipError):
     exit_code = EXIT_EXTERNAL
     stage = "voice"
 
 
-class RenderError(Md2ShortError):
+class RenderError(KaidanzipError):
     exit_code = EXIT_EXTERNAL
     stage = "render"
 
 
-class StateError(Md2ShortError):
+class StateError(KaidanzipError):
     exit_code = EXIT_INPUT
     stage = "state"

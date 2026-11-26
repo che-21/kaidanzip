@@ -3,10 +3,10 @@ import json
 import httpx
 import pytest
 
-from md2short import subtitles
-from md2short.errors import InputValidationError
-from md2short.storyboard import parse_storyboard
-from md2short.subtitles import binds, check_chunks, rule_split, split_scenes
+from kaidanzip import subtitles
+from kaidanzip.errors import InputValidationError
+from kaidanzip.storyboard import parse_storyboard
+from kaidanzip.subtitles import binds, check_chunks, rule_split, split_scenes
 
 SCENE2_EXPECTED = [
     "부산 장산의 전설 속 괴물,",

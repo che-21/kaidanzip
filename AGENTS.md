@@ -1,8 +1,8 @@
-# MD2Short — AGENTS.md
+# 괴담모음집 — AGENTS.md
 
 ## 1. 프로젝트 정의
 
-**MD2Short** — 마크다운 1개를 입력하면 9:16 숏폼 영상(MP4)을 자동 생성하는 **단일 Python CLI**.
+**괴담모음집** — 마크다운 1개를 입력하면 9:16 숏폼 영상(MP4)을 자동 생성하는 **단일 Python CLI**.
 
 - **입력**: 임의의 `<sample.md>` 마크다운
 - **출력**: 모든 산출물은 `jobs/<job_id>/` 하위에 생성
@@ -65,17 +65,17 @@
 
 ### 4.1 네이밍
 - 산출물 파일명·Job ID 포맷: `docs/architecture.md` §3.1.
-- 환경 변수: `MD2SHORT_*` prefix (외부 API 키 제외).
+- 환경 변수: `KAIDANZIP_*` prefix (외부 API 키 제외).
 
 ### 4.2 시간 단위
 - 데이터 모델·변환 헬퍼: `docs/architecture.md` 참조.
-- ms ↔ frame 변환 분기 작성 금지. 단일 헬퍼 `md2short.timeutil.ms_to_frames`만 사용 (초→ms는 `s_to_ms`).
+- ms ↔ frame 변환 분기 작성 금지. 단일 헬퍼 `kaidanzip.timeutil.ms_to_frames`만 사용 (초→ms는 `s_to_ms`).
 
 ### 4.3 시크릿
 `.env`만 사용, 절대 커밋 금지. 키 누락 시 즉시 명확한 에러로 실패.
 - `ELEVENLABS_API_KEY` — 내레이션 TTS + 문자 타임스탬프
-- `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` — 선택: 웹 GitHub 로그인 (`md2short/github_auth.py`). 허용 ID는 `MD2SHORT_ALLOWED_GITHUB_USERS`
-- `OPENAI_API_KEY` — 선택: 자막 AI 분할(`md2short/subtitles.py`, 실패 시 규칙 분할), AI 장면 이미지(`md2short/image_gen.py`)
+- `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` — 선택: 웹 GitHub 로그인 (`kaidanzip/github_auth.py`). 허용 ID는 `KAIDANZIP_ALLOWED_GITHUB_USERS`
+- `OPENAI_API_KEY` — 선택: 자막 AI 분할(`kaidanzip/subtitles.py`, 실패 시 규칙 분할), AI 장면 이미지(`kaidanzip/image_gen.py`)
 
 ### 4.4 로깅
 - 단계별 input/output → `jobs/<job_id>/logs/` (재현 가능해야 함).

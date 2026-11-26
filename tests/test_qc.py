@@ -1,7 +1,7 @@
 import pytest
 
-from md2short import qc
-from md2short.timeutil import ms_to_frames
+from kaidanzip import qc
+from kaidanzip.timeutil import ms_to_frames
 
 
 def _words(audio_ms, last_end):

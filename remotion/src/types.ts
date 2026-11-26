@@ -1,4 +1,4 @@
-// props.json 계약. 모든 시간 필드는 Python(md2short.timeutil.ms_to_frames)이 계산한 frame 정수다.
+// props.json 계약. 모든 시간 필드는 Python(kaidanzip.timeutil.ms_to_frames)이 계산한 frame 정수다.
 // 이 레이어는 시간을 변환하거나 추정하지 않는다.
 
 export type Motion = 'zoomIn' | 'pan' | 'fadeOut';

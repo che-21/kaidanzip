@@ -7,8 +7,8 @@ import httpx
 import pytest
 from typer.testing import CliRunner
 
-from md2short.cli import app
-from md2short.qc import REQUIRED_FILES
+from kaidanzip.cli import app
+from kaidanzip.qc import REQUIRED_FILES
 
 from .conftest import SAMPLE
 
@@ -46,7 +46,7 @@ def test_skip_render_reaches_confirmed_with_all_artifacts(isolated, images_dir, 
 
 @pytest.mark.parametrize("case", ["highlight", "narration", "images", "order"])
 def test_defects_stop_before_tts(isolated, images_dir, monkeypatch, case):
-    monkeypatch.delenv("MD2SHORT_FAKE_TTS")
+    monkeypatch.delenv("KAIDANZIP_FAKE_TTS")
     monkeypatch.setenv("ELEVENLABS_API_KEY", "dummy-not-used")
     calls = []
     monkeypatch.setattr(httpx.Client, "post", lambda *a, **k: calls.append(1))
@@ -86,9 +86,9 @@ def test_answer_n_aborts_exit_3(isolated, images_dir):
 
 
 def test_missing_key_is_clear_error(isolated, images_dir, monkeypatch):
-    monkeypatch.delenv("MD2SHORT_FAKE_TTS")
+    monkeypatch.delenv("KAIDANZIP_FAKE_TTS")
     monkeypatch.delenv("ELEVENLABS_API_KEY", raising=False)
-    monkeypatch.setattr("md2short.pipeline.load_dotenv", lambda *a, **k: None)
+    monkeypatch.setattr("kaidanzip.pipeline.load_dotenv", lambda *a, **k: None)
     res = runner.invoke(app, ["run", str(SAMPLE), "--images", str(images_dir), "--yes", "--skip-render"])
     assert res.exit_code == 1
     assert "ELEVENLABS_API_KEY" in res.output
@@ -96,7 +96,7 @@ def test_missing_key_is_clear_error(isolated, images_dir, monkeypatch):
 
 
 def test_rerender_refuses_voice_failure(isolated, images_dir, monkeypatch):
-    from md2short.state import JobState
+    from kaidanzip.state import JobState
 
     job = isolated / "jobs" / "sf_20261126_000000"
     st = JobState.create(job, "sf_20261126_000000", {})
@@ -111,7 +111,7 @@ def test_unexpected_error_marks_job_failed(isolated, images_dir, monkeypatch):
     def broken(*a, **k):
         raise KeyError("boom")
 
-    monkeypatch.setattr("md2short.voice.synthesize", broken)
+    monkeypatch.setattr("kaidanzip.voice.synthesize", broken)
     res = runner.invoke(app, ["run", str(SAMPLE), "--images", str(images_dir), "--yes", "--skip-render"])
     assert res.exit_code == 4
     assert "예상하지 못한 오류" in res.output

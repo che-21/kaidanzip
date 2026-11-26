@@ -1,9 +1,9 @@
 import json
 
-from md2short import cues
-from md2short.assets import SceneImage
-from md2short.plan import build_plan
-from md2short.timeutil import ms_to_frames
+from kaidanzip import cues
+from kaidanzip.assets import SceneImage
+from kaidanzip.plan import build_plan
+from kaidanzip.timeutil import ms_to_frames
 
 EXPECTED_CUES = {
     1: ("zoomIn", [], ["knock"]),
@@ -105,7 +105,7 @@ def test_plan_is_deterministic(board, words_doc, tmp_path):
 
 
 def test_caption_timing_first_start_to_last_end(board, words_doc, tmp_path):
-    from md2short.subtitles import rule_split
+    from kaidanzip.subtitles import rule_split
 
     for s in board.scenes:
         s.subtitle_chunks = rule_split(s.narration)

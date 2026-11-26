@@ -4,8 +4,8 @@ import json
 import pytest
 from rich.console import Console
 
-from md2short.confirm import confirm
-from md2short.errors import EXIT_ABORTED, EXIT_INPUT, ConfirmAborted, InputValidationError
+from kaidanzip.confirm import confirm
+from kaidanzip.errors import EXIT_ABORTED, EXIT_INPUT, ConfirmAborted, InputValidationError
 
 EDL = {
     "audio_duration_ms": 48_000,
@@ -45,7 +45,7 @@ def test_assume_yes_skips_input(tmp_path):
 
 
 def test_suggest_speed():
-    from md2short.confirm import suggest_speed
+    from kaidanzip.confirm import suggest_speed
 
     assert suggest_speed(48_000) is None
     assert suggest_speed(44_722) == 0.89          # 짧으면 느리게

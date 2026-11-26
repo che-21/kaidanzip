@@ -1,4 +1,4 @@
-"""MD2Short 웹 화면 (로컬 전용).
+"""괴담모음집 웹 화면 (로컬 전용).
 
 실행: python -m uv run streamlit run webapp/app.py
 
@@ -27,16 +27,16 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from md2short import github_auth, image_gen, pipeline, subtitles, voice  # noqa: E402
-from md2short.confirm import MAX_MS, MIN_MS, suggest_speed  # noqa: E402
-from md2short.errors import Md2ShortError  # noqa: E402
-from md2short.paths import jobs_dir  # noqa: E402
-from md2short.state import JobState  # noqa: E402
-from md2short.storyboard import Storyboard, parse_storyboard  # noqa: E402
-from md2short.timeutil import format_seconds  # noqa: E402
+from kaidanzip import github_auth, image_gen, pipeline, subtitles, voice  # noqa: E402
+from kaidanzip.confirm import MAX_MS, MIN_MS, suggest_speed  # noqa: E402
+from kaidanzip.errors import KaidanzipError  # noqa: E402
+from kaidanzip.paths import jobs_dir  # noqa: E402
+from kaidanzip.state import JobState  # noqa: E402
+from kaidanzip.storyboard import Storyboard, parse_storyboard  # noqa: E402
+from kaidanzip.timeutil import format_seconds  # noqa: E402
 
 load_dotenv(ROOT / ".env")
-st.set_page_config(page_title="MD2Short", page_icon="🎬", layout="wide")
+st.set_page_config(page_title="괴담모음집", page_icon="🎬", layout="wide")
 
 STATUS_KO = {
     "created": "생성됨", "parsed": "대본 확정", "voice_generated": "음성 완료", "planned": "타이밍 확인 대기",
@@ -76,7 +76,7 @@ def reset_draft():
 
 
 def show_error(exc: Exception):
-    if isinstance(exc, Md2ShortError):
+    if isinstance(exc, KaidanzipError):
         st.error(exc.message)
     else:
         st.error(f"예상하지 못한 오류: {type(exc).__name__}: {exc}")
@@ -104,10 +104,10 @@ def auth_gate() -> dict | None:
         st.error(f"GitHub 로그인이 취소되었거나 실패했습니다: {qp.get('error_description') or qp['error']}")
         st.query_params.clear()
 
-    st.title("🎬 MD2Short")
+    st.title("🎬 괴담모음집")
     st.write("연출표 마크다운으로 9:16 숏폼 영상을 만듭니다. 계속하려면 GitHub로 로그인하세요.")
     if not cfg.allowed:
-        st.warning("허용된 GitHub 계정이 없습니다. 관리자는 .env의 MD2SHORT_ALLOWED_GITHUB_USERS에 GitHub ID를 넣어 주세요.")
+        st.warning("허용된 GitHub 계정이 없습니다. 관리자는 .env의 KAIDANZIP_ALLOWED_GITHUB_USERS에 GitHub ID를 넣어 주세요.")
     url = github_auth.authorize_url(cfg, github_auth.make_state(cfg.client_secret))
     st.markdown(
         f'<a href="{url}" target="_self" style="display:inline-block;padding:0.6em 1.2em;border-radius:8px;'
@@ -126,7 +126,7 @@ def current_owner() -> str | None:
 # ---------------- 사이드바 ----------------
 
 def sidebar():
-    st.sidebar.title("🎬 MD2Short")
+    st.sidebar.title("🎬 괴담모음집")
     st.sidebar.caption("연출표 마크다운 → 9:16 숏폼 영상")
     user = ss().get("user")
     if user:
@@ -139,8 +139,8 @@ def sidebar():
             st.rerun()
     else:
         st.sidebar.caption("🔓 로그인 꺼짐 — 이 컴퓨터(localhost)에서만 쓰세요")
-    el = bool(os.environ.get("ELEVENLABS_API_KEY")) or bool(os.environ.get("MD2SHORT_FAKE_TTS"))
-    oa = bool(os.environ.get("OPENAI_API_KEY")) or bool(os.environ.get("MD2SHORT_FAKE_IMAGES"))
+    el = bool(os.environ.get("ELEVENLABS_API_KEY")) or bool(os.environ.get("KAIDANZIP_FAKE_TTS"))
+    oa = bool(os.environ.get("OPENAI_API_KEY")) or bool(os.environ.get("KAIDANZIP_FAKE_IMAGES"))
     st.sidebar.write(("✅" if el else "❌") + " ElevenLabs 키 (음성)")
     st.sidebar.write(("✅" if oa else "⚠️") + " OpenAI 키 (AI 자막 분할·AI 이미지)")
 
@@ -330,8 +330,8 @@ def confirm_script(board: Storyboard, style: str):
         def on_img(n, total, scene):
             bar.progress(min(0.99, (n - 1) / total), text=f"AI 이미지 생성 중... 장면 {scene} ({n}/{total})")
 
-        fake = bool(os.environ.get("MD2SHORT_FAKE_TTS"))
-        os.environ["MD2SHORT_VOICE_ID"] = st.session_state.get("voice_id") or voice.voice_id()
+        fake = bool(os.environ.get("KAIDANZIP_FAKE_TTS"))
+        os.environ["KAIDANZIP_VOICE_ID"] = st.session_state.get("voice_id") or voice.voice_id()
         job_dir, state, _, _ = pipeline.start_job(
             ss()["md_text"], None, "rule", pipeline.job_config(st.session_state.get("speed", 0.9), fake),
             overrides=overrides, markdown_input=ss()["md_name"] or "upload.md", images_input="web",
@@ -374,7 +374,7 @@ def image_grid(job_id: str, allow_regen: bool):
 
 
 def _scene(sb, idx):
-    from md2short.storyboard import Scene
+    from kaidanzip.storyboard import Scene
     for s in sb["scenes"]:
         if s["index"] == idx:
             yield Scene(**s)
@@ -392,13 +392,13 @@ def step_images():
         job_dir, state, sb = load_job(job_id)
         try:
             voice.validate_speed(speed)
-            fake = bool(os.environ.get("MD2SHORT_FAKE_TTS"))
+            fake = bool(os.environ.get("KAIDANZIP_FAKE_TTS"))
             pipeline.preflight(need_key=not fake, need_render=False)
-            os.environ["MD2SHORT_VOICE_ID"] = st.session_state.get("voice_id") or voice.voice_id()
+            os.environ["KAIDANZIP_VOICE_ID"] = st.session_state.get("voice_id") or voice.voice_id()
             board = Storyboard(title=sb.get("title"), scenes=sb["scenes"])
-            from md2short.assets import SceneImage
+            from kaidanzip.assets import SceneImage
             imgs = [SceneImage(**i) for i in sb["images"]]
-            state.data["config"].update(speed=speed, voice_id=os.environ["MD2SHORT_VOICE_ID"])
+            state.data["config"].update(speed=speed, voice_id=os.environ["KAIDANZIP_VOICE_ID"])
             state.save()
             with st.spinner("음성 생성 중..."):
                 pipeline.voice_and_plan(job_dir, state, board, imgs, speed)

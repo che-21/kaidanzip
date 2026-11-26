@@ -2,7 +2,7 @@
 
 - 모든 장면 프롬프트에 같은 공통 화풍(style)을 붙여 그림체를 맞춘다.
 - 생성 이미지는 job의 ``inputs/images/scene_NN.png``에 저장하고 sha256을 storyboard.json에 기록한다.
-- ``MD2SHORT_FAKE_IMAGES=1``이면 API 대신 어두운 단색 PNG를 만든다 (테스트·무료 리허설).
+- ``KAIDANZIP_FAKE_IMAGES=1``이면 API 대신 어두운 단색 PNG를 만든다 (테스트·무료 리허설).
 """
 
 from __future__ import annotations
@@ -37,11 +37,11 @@ DEFAULT_STYLE = (
 
 
 def image_model() -> str:
-    return os.environ.get("MD2SHORT_IMAGE_MODEL", IMAGE_MODEL_DEFAULT)
+    return os.environ.get("KAIDANZIP_IMAGE_MODEL", IMAGE_MODEL_DEFAULT)
 
 
 def fake_mode() -> bool:
-    return bool(os.environ.get("MD2SHORT_FAKE_IMAGES"))
+    return bool(os.environ.get("KAIDANZIP_FAKE_IMAGES"))
 
 
 def build_prompt(scene: Scene, style: str = DEFAULT_STYLE) -> str:
@@ -83,7 +83,7 @@ def generate_image(prompt: str, out_path: Path, scene_no: int) -> dict:
     if not key:
         raise PreflightError("AI 이미지를 만들려면 .env에 OPENAI_API_KEY가 필요합니다.")
     payload = {"model": image_model(), "prompt": prompt, "size": IMAGE_SIZE, "n": 1,
-               "quality": os.environ.get("MD2SHORT_IMAGE_QUALITY", IMAGE_QUALITY_DEFAULT)}
+               "quality": os.environ.get("KAIDANZIP_IMAGE_QUALITY", IMAGE_QUALITY_DEFAULT)}
     try:
         with httpx.Client(timeout=240.0) as client:
             resp = request_with_retry(lambda: client.post(

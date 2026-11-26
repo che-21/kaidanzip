@@ -80,7 +80,7 @@ def confirm(edl: dict, job_dir: Path, assume_yes: bool, stdin: TextIO | None = N
         if answer in ("y", "yes"):
             return
         if answer in ("n", "no"):
-            raise ConfirmAborted("사용자가 렌더를 취소했습니다. 'md2short render <job_id>'로 나중에 렌더할 수 있습니다.")
+            raise ConfirmAborted("사용자가 렌더를 취소했습니다. 'kaidanzip render <job_id>'로 나중에 렌더할 수 있습니다.")
         raise InputValidationError(f"'{answer}'는 올바른 응답이 아닙니다. y 또는 n을 입력해 주세요.")
     finally:
         log.parent.mkdir(parents=True, exist_ok=True)

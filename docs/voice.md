@@ -8,7 +8,7 @@ v1 한국어 기본 voice는 ElevenLabs premade voice **Brian**이다.
 nPczCjzI2devNBz1zQrb
 ```
 
-- 코드 기준: `md2short/voice.py` `DEFAULT_VOICE_ID` (실행 시 `--voice-id` 또는 `MD2SHORT_VOICE_ID`로 변경 가능)
+- 코드 기준: `kaidanzip/voice.py` `DEFAULT_VOICE_ID` (실행 시 `--voice-id` 또는 `KAIDANZIP_VOICE_ID`로 변경 가능)
 - 모델: `eleven_multilingual_v2` (한국어 읽기)
 
 ## 요금제 제약

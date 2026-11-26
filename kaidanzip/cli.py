@@ -1,4 +1,4 @@
-"""md2short CLI: run / render / status."""
+"""kaidanzip CLI: run / render / status."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ import typer
 from rich.console import Console
 
 from . import pipeline
-from .errors import EXIT_EXTERNAL, Md2ShortError
+from .errors import EXIT_EXTERNAL, KaidanzipError
 
 app = typer.Typer(add_completion=False, help="연출표 마크다운 + 장면 이미지 → 9:16 숏폼 MP4")
 err = Console(stderr=True)
@@ -19,7 +19,7 @@ err = Console(stderr=True)
 def _guard(fn, *args, **kwargs) -> None:
     try:
         code = fn(*args, **kwargs)
-    except Md2ShortError as exc:
+    except KaidanzipError as exc:
         err.print(f"[bold red]오류:[/bold red] {exc.message}")
         raise typer.Exit(exc.exit_code)
     except Exception as exc:  # 예상하지 못한 오류: job은 pipeline에서 failed로 기록됨
@@ -61,7 +61,7 @@ def regen_image(
     scene: int = typer.Option(..., "--scene", help="다시 만들 장면 번호"),
     prompt: str | None = typer.Option(None, "--prompt", help="새 프롬프트 (없으면 기존 프롬프트)"),
 ) -> None:
-    """장면 이미지 1장을 AI로 다시 만든다. 이후 'md2short render <job_id>'로 다시 렌더한다."""
+    """장면 이미지 1장을 AI로 다시 만든다. 이후 'kaidanzip render <job_id>'로 다시 렌더한다."""
     _guard(pipeline.regen_image, job_id, scene, prompt)
 
 
@@ -79,7 +79,7 @@ def status(job_id: str = typer.Argument(...)) -> None:
     """job 상태를 출력한다."""
     try:
         data = pipeline.show_status(job_id)
-    except Md2ShortError as exc:
+    except KaidanzipError as exc:
         err.print(f"[bold red]오류:[/bold red] {exc.message}")
         raise typer.Exit(exc.exit_code)
     sys.stdout.write(json.dumps(data, ensure_ascii=False, indent=2) + "\n")

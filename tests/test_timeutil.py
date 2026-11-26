@@ -1,6 +1,6 @@
 import pytest
 
-from md2short.timeutil import FPS, ms_to_frames, s_to_ms
+from kaidanzip.timeutil import FPS, ms_to_frames, s_to_ms
 
 
 def test_fps_is_30():

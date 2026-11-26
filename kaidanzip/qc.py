@@ -49,7 +49,7 @@ def evaluate(stream: dict, words_doc: dict, props: dict, job_dir: Path) -> dict:
         "artifacts": _check(not missing, missing, "all required files present"),
     }
     chars = len(words_doc.get("text", ""))
-    rate = os.environ.get("MD2SHORT_EL_COST_PER_CHAR")
+    rate = os.environ.get("KAIDANZIP_EL_COST_PER_CHAR")
     cost = {"tts_chars": chars, "usd_per_char": float(rate) if rate else None,
             "usd_estimate": round(chars * float(rate), 4) if rate else None}
     return {

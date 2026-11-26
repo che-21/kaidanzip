@@ -2,8 +2,8 @@ import re
 
 import pytest
 
-from md2short.errors import StateError
-from md2short.state import JobState, new_job_id, validate_transition
+from kaidanzip.errors import StateError
+from kaidanzip.state import JobState, new_job_id, validate_transition
 
 
 def test_job_id_format():

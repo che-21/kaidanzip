@@ -3,8 +3,8 @@ import base64
 import pytest
 from mutagen.mp3 import MP3
 
-from md2short import fake_tts, voice
-from md2short.errors import AlignmentMismatchError
+from kaidanzip import fake_tts, voice
+from kaidanzip.errors import AlignmentMismatchError
 
 
 def test_request_text_joins_with_single_space(board):
@@ -43,7 +43,7 @@ def test_silent_mp3_duration_is_measurable(tmp_path):
 
 
 def test_synthesize_writes_words_json(board, tmp_path, monkeypatch):
-    monkeypatch.setenv("MD2SHORT_FAKE_TTS", "synth")
+    monkeypatch.setenv("KAIDANZIP_FAKE_TTS", "synth")
     (tmp_path / "logs").mkdir()
     doc = voice.synthesize(board, tmp_path)
     assert (tmp_path / "audio" / "narration.mp3").is_file()
@@ -55,7 +55,7 @@ def test_synthesize_writes_words_json(board, tmp_path, monkeypatch):
 
 
 def test_speed_validation_and_body():
-    from md2short.errors import InputValidationError
+    from kaidanzip.errors import InputValidationError
 
     assert voice.request_body("가", 1.0) == {"text": "가", "model_id": voice.MODEL_ID}
     assert voice.request_body("가", 0.9)["voice_settings"] == {"speed": 0.9}
@@ -83,7 +83,7 @@ def test_speed_sent_to_elevenlabs(monkeypatch, tmp_path, board):
         sent.update(url=url, params=params, json=json)
         return Resp(fake_tts.synth_response(json["text"]))
 
-    monkeypatch.delenv("MD2SHORT_FAKE_TTS", raising=False)
+    monkeypatch.delenv("KAIDANZIP_FAKE_TTS", raising=False)
     monkeypatch.setenv("ELEVENLABS_API_KEY", "test-key")
     monkeypatch.setattr(httpx.Client, "post", fake_post)
     (tmp_path / "logs").mkdir()

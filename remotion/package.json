@@ -1,8 +1,8 @@
 {
-  "name": "md2short-remotion",
+  "name": "kaidanzip-remotion",
   "private": true,
   "version": "1.0.0",
-  "description": "MD2Short Remotion renderer (props.json -> MP4). No time math here: all timings arrive as frames.",
+  "description": "괴담모음집 Remotion renderer (props.json -> MP4). No time math here: all timings arrive as frames.",
   "scripts": {
     "compositions": "remotion compositions src/index.ts",
     "typecheck": "tsc --noEmit"

@@ -247,7 +247,7 @@ JSON만 출력: {"scenes": [{"index": 1, "chunks": ["...", "..."]}]}"""
 def ai_split(narrations: dict[int, str]) -> tuple[dict[int, list[str]], dict]:
     """OpenAI로 분할. (장면별 결과, 로그) — 실패하면 빈 dict와 사유."""
     key = os.environ.get("OPENAI_API_KEY")
-    log: dict = {"model": os.environ.get("MD2SHORT_OPENAI_MODEL", AI_MODEL_DEFAULT)}
+    log: dict = {"model": os.environ.get("KAIDANZIP_OPENAI_MODEL", AI_MODEL_DEFAULT)}
     if not key:
         log["error"] = "OPENAI_API_KEY 없음"
         return {}, log

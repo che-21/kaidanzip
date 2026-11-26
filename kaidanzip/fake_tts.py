@@ -1,6 +1,6 @@
 """ElevenLabs 응답을 흉내 내는 가짜 TTS (테스트·무료 리허설용).
 
-``MD2SHORT_FAKE_TTS``
+``KAIDANZIP_FAKE_TTS``
 - ``synth``: 요청 텍스트로 alignment를 합성하고 무음 mp3를 만든다.
 - 그 밖의 값: ElevenLabs ``with-timestamps`` 응답 JSON 파일 경로로 보고 그대로 읽는다.
 
@@ -27,8 +27,8 @@ def silent_mp3_bytes(duration_s: float) -> bytes:
 
 
 def synth_response(text: str, char_s: float | None = None, space_s: float | None = None) -> dict:
-    char_s = char_s if char_s is not None else float(os.environ.get("MD2SHORT_FAKE_CHAR_S", "0.17"))
-    space_s = space_s if space_s is not None else float(os.environ.get("MD2SHORT_FAKE_SPACE_S", "0.06"))
+    char_s = char_s if char_s is not None else float(os.environ.get("KAIDANZIP_FAKE_CHAR_S", "0.17"))
+    space_s = space_s if space_s is not None else float(os.environ.get("KAIDANZIP_FAKE_SPACE_S", "0.06"))
     starts: list[float] = []
     ends: list[float] = []
     t = 0.0
@@ -50,9 +50,9 @@ def synth_response(text: str, char_s: float | None = None, space_s: float | None
 
 
 def fake_response(text: str, speed: float = 1.0) -> dict:
-    mode = os.environ.get("MD2SHORT_FAKE_TTS", "")
+    mode = os.environ.get("KAIDANZIP_FAKE_TTS", "")
     if mode == "synth":
-        char_s = float(os.environ.get("MD2SHORT_FAKE_CHAR_S", "0.17")) / speed
-        space_s = float(os.environ.get("MD2SHORT_FAKE_SPACE_S", "0.06")) / speed
+        char_s = float(os.environ.get("KAIDANZIP_FAKE_CHAR_S", "0.17")) / speed
+        space_s = float(os.environ.get("KAIDANZIP_FAKE_SPACE_S", "0.06")) / speed
         return synth_response(text, char_s=char_s, space_s=space_s)
     return json.loads(Path(mode).read_text(encoding="utf-8"))

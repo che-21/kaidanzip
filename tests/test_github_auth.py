@@ -5,8 +5,8 @@ import httpx
 import pytest
 from streamlit.testing.v1 import AppTest
 
-from md2short import github_auth as ga
-from md2short.state import JobState
+from kaidanzip import github_auth as ga
+from kaidanzip.state import JobState
 
 from .conftest import ROOT
 
@@ -89,7 +89,7 @@ def test_complete_login_rejects_bad_state_before_network(monkeypatch):
 
 
 def test_empty_allowlist_denies_everyone(monkeypatch):
-    monkeypatch.delenv("MD2SHORT_ALLOWED_GITHUB_USERS", raising=False)
+    monkeypatch.delenv("KAIDANZIP_ALLOWED_GITHUB_USERS", raising=False)
     cfg = ga.load_config()
     assert not ga.is_allowed(cfg, "octo-user")
 
@@ -98,12 +98,12 @@ def test_empty_allowlist_denies_everyone(monkeypatch):
 
 @pytest.fixture
 def auth_env(isolated, monkeypatch):
-    monkeypatch.setenv("MD2SHORT_FAKE_IMAGES", "1")
+    monkeypatch.setenv("KAIDANZIP_FAKE_IMAGES", "1")
     monkeypatch.setenv("OPENAI_API_KEY", "")
     monkeypatch.setenv("ELEVENLABS_API_KEY", "")
     monkeypatch.setenv("GITHUB_CLIENT_ID", "cid")
     monkeypatch.setenv("GITHUB_CLIENT_SECRET", "sec")
-    monkeypatch.setenv("MD2SHORT_ALLOWED_GITHUB_USERS", "octo-user")
+    monkeypatch.setenv("KAIDANZIP_ALLOWED_GITHUB_USERS", "octo-user")
     return isolated
 
 

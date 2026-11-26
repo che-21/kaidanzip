@@ -1,4 +1,4 @@
-# MD2Short 시스템 설계 (v1)
+# 괴담모음집 시스템 설계 (v1)
 
 > 제품 요구(WHAT/WHY)는 [`PRD.md`](PRD.md), 작업 원칙은 [`../AGENTS.md`](../AGENTS.md)를 따른다. 이 문서는 HOW를 다룬다.
 > v1 범위 밖의 이전 설계는 문서 끝 `v2-backlog` 절에만 남긴다.
@@ -9,7 +9,7 @@
 
 | 레이어 | 구성 | 입력 | 출력 | 금지 |
 | --- | --- | --- | --- | --- |
-| 계획 (Python) | `md2short` 패키지 | 연출표 md, 장면 이미지, `words.json` | `edl.json`, `props.json` | 렌더링 |
+| 계획 (Python) | `kaidanzip` 패키지 | 연출표 md, 장면 이미지, `words.json` | `edl.json`, `props.json` | 렌더링 |
 | 음성 | ElevenLabs TTS `with-timestamps` | 대본 텍스트 | `narration.mp3`, 문자 alignment → `words.json` | 시간 추정·편집 판단 |
 | 비주얼 합성 | Remotion 4.x (`node …/@remotion/cli/remotion-cli.js render`) | `props.json`, job 내부 미디어 | `edit/final.mp4` (자막 포함) | 시간 계산·편집 판단·외부 API 호출 |
 
@@ -17,7 +17,7 @@
 
 ### 1.2 단일 진실원
 - `transcripts/words.json`이 모든 시간의 기준이다. 연출표의 `[a~b초]`는 확인 표의 비교용으로만 쓴다.
-- ms→frame 변환은 `md2short.timeutil.ms_to_frames` 하나뿐이다(역함수 없음). 초→ms는 `s_to_ms` 하나뿐이다.
+- ms→frame 변환은 `kaidanzip.timeutil.ms_to_frames` 하나뿐이다(역함수 없음). 초→ms는 `s_to_ms` 하나뿐이다.
 - `props.json`의 모든 시간 필드는 frame 정수다. Remotion 코드에는 시간 단위 변환식이 없다.
 
 ### 1.3 결정론
@@ -34,7 +34,7 @@ pre-flight(키·Node·Remotion·ffprobe) → 연출표/이미지 검증이 모�
 ### 2.1 실행 흐름
 
 ```text
-uv run md2short run sample.md --images emotion/ [--yes] [--speed 0.7~1.2]
+uv run kaidanzip run sample.md --images emotion/ [--yes] [--speed 0.7~1.2]
   ├─ pre-flight: ELEVENLABS_API_KEY, node, remotion CLI js, ffprobe -version
   ├─ job 생성: jobs/sf_YYYYMMDD_<6hex>/status.json (created)
   ├─ [parse]  storyboard.parse_storyboard + assets.copy_scene_images
@@ -50,34 +50,34 @@ uv run md2short run sample.md --images emotion/ [--yes] [--speed 0.7~1.2]
   ├─ copy     edit/final.mp4 → output/ret.mp4
   └─ [qc]     qc.evaluate → qc_report.json                                                          (qc_passed | qc_failed)
 
-uv run md2short render <job_id> [--yes]   # TTS 없이 confirm → render → qc 재실행
-uv run md2short subtitles sample.md      # TTS 없이 자막 분할 미리보기
-uv run md2short status <job_id>
+uv run kaidanzip render <job_id> [--yes]   # TTS 없이 confirm → render → qc 재실행
+uv run kaidanzip subtitles sample.md      # TTS 없이 자막 분할 미리보기
+uv run kaidanzip status <job_id>
 ```
 
 ### 2.2 Python 모듈 구성
 
 | 모듈 | 역할 |
 | --- | --- |
-| `md2short.cli` | Typer `run` / `render` / `status`, 오류 → 종료 코드 |
-| `md2short.pipeline` | job 오케스트레이션, pre-flight, 재렌더(attempt 보관) |
-| `md2short.storyboard` | 연출표 파싱, NFC 정규화, 강조어 정규화 매칭(원문 offset 역매핑) |
-| `md2short.assets` | 이미지 번호순 매칭·복사·sha256·해상도, BGM/SFX 탐색 |
-| `md2short.voice` | ElevenLabs 호출, alignment 검사, 문자→단어 집계, mutagen 길이 측정 |
-| `md2short.fake_tts` | `MD2SHORT_FAKE_TTS`(synth 또는 응답 JSON 경로) — 테스트·무료 리허설 |
-| `md2short._retry` | 429/5xx/timeout 3회 재시도, 0.5/1.0/2.0s backoff |
-| `md2short.subtitles` | 자막 덩어리 분할: 수동(`자막 분할` 필드) > OpenAI(규칙 검증) > 규칙 기반. 규칙 1~5 |
-| `md2short.image_gen` | 장면 이미지: 업로드 복사 또는 OpenAI 이미지 생성(`gpt-image-2`, 1024×1536, 공통 화풍 + 장면 연출), 장면별 재생성, `MD2SHORT_FAKE_IMAGES` |
-| `md2short.github_auth` | 웹 화면 GitHub OAuth 로그인: HMAC 서명 state(10분), 코드→토큰 교환, `/user` 조회, 허용 목록(기본 거부). 토큰 미저장 |
+| `kaidanzip.cli` | Typer `run` / `render` / `status`, 오류 → 종료 코드 |
+| `kaidanzip.pipeline` | job 오케스트레이션, pre-flight, 재렌더(attempt 보관) |
+| `kaidanzip.storyboard` | 연출표 파싱, NFC 정규화, 강조어 정규화 매칭(원문 offset 역매핑) |
+| `kaidanzip.assets` | 이미지 번호순 매칭·복사·sha256·해상도, BGM/SFX 탐색 |
+| `kaidanzip.voice` | ElevenLabs 호출, alignment 검사, 문자→단어 집계, mutagen 길이 측정 |
+| `kaidanzip.fake_tts` | `KAIDANZIP_FAKE_TTS`(synth 또는 응답 JSON 경로) — 테스트·무료 리허설 |
+| `kaidanzip._retry` | 429/5xx/timeout 3회 재시도, 0.5/1.0/2.0s backoff |
+| `kaidanzip.subtitles` | 자막 덩어리 분할: 수동(`자막 분할` 필드) > OpenAI(규칙 검증) > 규칙 기반. 규칙 1~5 |
+| `kaidanzip.image_gen` | 장면 이미지: 업로드 복사 또는 OpenAI 이미지 생성(`gpt-image-2`, 1024×1536, 공통 화풍 + 장면 연출), 장면별 재생성, `KAIDANZIP_FAKE_IMAGES` |
+| `kaidanzip.github_auth` | 웹 화면 GitHub OAuth 로그인: HMAC 서명 state(10분), 코드→토큰 교환, `/user` 조회, 허용 목록(기본 거부). 토큰 미저장 |
 | `webapp/app.py` | Streamlit 로컬 웹 화면: 대본 확인 → 이미지 확인 → 음성·타이밍 → 영상 (pipeline 단계 함수 `start_job` / `voice_and_plan` / `finish` / `rerender` 호출) |
-| `md2short.cues` | 화면 연출·효과음 키워드 사전 |
-| `md2short.plan` | 장면 frame 구간, subtitle_chunks → 단어 대응·표시 구간, 강조 span, props/edl 생성 |
-| `md2short.confirm` | 렌더 전 확인 표와 y/n, 길이 규격 이탈 시 `--speed` 제안(목표 50초, 반비례 근사) |
-| `md2short.state` | `status.json` 상태 머신, rerender 전이 |
-| `md2short.tools` | node 직접 실행으로 Remotion CLI·ffprobe 해석(`.cmd` 비경유) |
-| `md2short.render` | staging, Remotion subprocess, `logs/remotion.log` |
-| `md2short.qc` | QC 6개 체크 + 비용 정보 |
-| `md2short.timeutil` | `FPS=30`, `ms_to_frames`, `s_to_ms`, 표시용 `format_seconds` |
+| `kaidanzip.cues` | 화면 연출·효과음 키워드 사전 |
+| `kaidanzip.plan` | 장면 frame 구간, subtitle_chunks → 단어 대응·표시 구간, 강조 span, props/edl 생성 |
+| `kaidanzip.confirm` | 렌더 전 확인 표와 y/n, 길이 규격 이탈 시 `--speed` 제안(목표 50초, 반비례 근사) |
+| `kaidanzip.state` | `status.json` 상태 머신, rerender 전이 |
+| `kaidanzip.tools` | node 직접 실행으로 Remotion CLI·ffprobe 해석(`.cmd` 비경유) |
+| `kaidanzip.render` | staging, Remotion subprocess, `logs/remotion.log` |
+| `kaidanzip.qc` | QC 6개 체크 + 비용 정보 |
+| `kaidanzip.timeutil` | `FPS=30`, `ms_to_frames`, `s_to_ms`, 표시용 `format_seconds` |
 
 ### 2.3 Remotion 구성 (`remotion/src/`)
 
@@ -170,7 +170,7 @@ Job ID는 `sf_<YYYYMMDD>_<6 hex>`다. 모든 산출물은 `jobs/<job_id>/` 기�
 
 장면 구간: 장면 k는 그 장면 첫 단어의 `start`부터 다음 장면 첫 단어 `start`까지다(장면 1은 0부터, 마지막 장면은 오디오 끝까지). `Σ scenes.durationInFrames == durationInFrames`.
 
-### 4.4 cue 사전 (`md2short/cues.py`)
+### 4.4 cue 사전 (`kaidanzip/cues.py`)
 
 | 종류 | key | 정규식 |
 | --- | --- | --- |
@@ -206,25 +206,25 @@ jobs/sf_<YYYYMMDD>_<hex>/
 | render_length | \|ms_to_frames(video_ms) − durationInFrames\| ≤ 3 frames |
 | artifacts | §3.2 필수 파일 모두 존재 |
 
-`cost`는 정보 필드다(`MD2SHORT_EL_COST_PER_CHAR`가 있으면 추정액 계산). ffprobe는 PATH에 있으면 그것을, 없으면 Remotion 번들 ffprobe를 쓴다.
+`cost`는 정보 필드다(`KAIDANZIP_EL_COST_PER_CHAR`가 있으면 추정액 계산). ffprobe는 PATH에 있으면 그것을, 없으면 Remotion 번들 ffprobe를 쓴다.
 
 ## 6. 환경 변수
 
 | 변수 | 용도 |
 | --- | --- |
 | `ELEVENLABS_API_KEY` | 필수(가짜 TTS 제외) |
-| `MD2SHORT_VOICE_ID` | 기본 voice 대신 사용 (기본은 [`voice.md`](voice.md)) |
-| `MD2SHORT_FAKE_TTS` | `synth` 또는 응답 JSON 경로 — ElevenLabs 대신 사용 |
-| `MD2SHORT_JOBS_DIR`, `MD2SHORT_ASSETS_DIR`, `MD2SHORT_REMOTION_DIR` | 경로 변경(테스트용) |
-| `MD2SHORT_EL_COST_PER_CHAR` | 비용 추정 단가 |
+| `KAIDANZIP_VOICE_ID` | 기본 voice 대신 사용 (기본은 [`voice.md`](voice.md)) |
+| `KAIDANZIP_FAKE_TTS` | `synth` 또는 응답 JSON 경로 — ElevenLabs 대신 사용 |
+| `KAIDANZIP_JOBS_DIR`, `KAIDANZIP_ASSETS_DIR`, `KAIDANZIP_REMOTION_DIR` | 경로 변경(테스트용) |
+| `KAIDANZIP_EL_COST_PER_CHAR` | 비용 추정 단가 |
 | `OPENAI_API_KEY` | 선택: 자막 AI 분할 |
-| `MD2SHORT_SUBTITLE_SPLIT` | `auto`(기본) / `ai` / `rule` |
-| `MD2SHORT_OPENAI_MODEL` | 자막 분할 모델 (기본 `gpt-5-mini`) |
-| `MD2SHORT_IMAGE_MODEL`, `MD2SHORT_IMAGE_QUALITY` | AI 이미지 모델(기본 `gpt-image-2`)·품질(기본 `medium`) |
+| `KAIDANZIP_SUBTITLE_SPLIT` | `auto`(기본) / `ai` / `rule` |
+| `KAIDANZIP_OPENAI_MODEL` | 자막 분할 모델 (기본 `gpt-5-mini`) |
+| `KAIDANZIP_IMAGE_MODEL`, `KAIDANZIP_IMAGE_QUALITY` | AI 이미지 모델(기본 `gpt-image-2`)·품질(기본 `medium`) |
 | `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | 웹 GitHub 로그인 (둘 다 있으면 켜짐) |
-| `MD2SHORT_ALLOWED_GITHUB_USERS` | 허용 GitHub ID (쉼표 구분, 비면 전원 거부) |
-| `MD2SHORT_PUBLIC_URL` | OAuth callback URL (기본 `http://localhost:8501`) |
-| `MD2SHORT_FAKE_IMAGES` | `1`이면 API 대신 단색 PNG (테스트·리허설) |
+| `KAIDANZIP_ALLOWED_GITHUB_USERS` | 허용 GitHub ID (쉼표 구분, 비면 전원 거부) |
+| `KAIDANZIP_PUBLIC_URL` | OAuth callback URL (기본 `http://localhost:8501`) |
+| `KAIDANZIP_FAKE_IMAGES` | `1`이면 API 대신 단색 PNG (테스트·리허설) |
 
 <!-- v2-backlog -->
 

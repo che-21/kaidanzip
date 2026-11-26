@@ -3,7 +3,7 @@
 장면별 연출표 마크다운으로 괴담 쇼츠(9:16 MP4, 1080×1920, 30fps)를 만드는 도구입니다. 웹 화면과 명령줄(CLI)로 쓸 수 있습니다.
 ElevenLabs가 내레이션을 만들고, Remotion이 이미지 움직임·자막·배경음·효과음을 합성합니다. 장면 이미지는 직접 올리거나 AI로 만듭니다.
 
-> 영상 제작 엔진의 이름은 **MD2Short**입니다. 명령어(`md2short`)와 패키지 이름은 그대로 씁니다.
+> 명령어와 Python 패키지 이름은 `kaidanzip`입니다.
 > 각자 자기 PC에서 자기 API 키(ElevenLabs·OpenAI)로 실행하는 방식이라, 비용은 실행한 사람에게 청구됩니다.
 
 - 설계: [`docs/architecture.md`](docs/architecture.md) · 제품 요구: [`docs/PRD.md`](docs/PRD.md) · 작업 원칙: [`AGENTS.md`](AGENTS.md)
@@ -60,8 +60,8 @@ python -m uv run streamlit run webapp/app.py
    ```text
    GITHUB_CLIENT_ID=...
    GITHUB_CLIENT_SECRET=...
-   MD2SHORT_ALLOWED_GITHUB_USERS=내GitHubID,동료ID
-   MD2SHORT_PUBLIC_URL=http://localhost:8501
+   KAIDANZIP_ALLOWED_GITHUB_USERS=내GitHubID,동료ID
+   KAIDANZIP_PUBLIC_URL=http://localhost:8501
    ```
 3. 웹 화면을 다시 시작하면 "GitHub로 로그인" 버튼이 나옵니다. 요청 권한은 읽기 전용 프로필(`read:user`)뿐이고 토큰은 저장하지 않습니다.
 
@@ -72,7 +72,7 @@ python -m uv run streamlit run webapp/app.py
 ## 실행 (명령줄)
 
 ```bash
-python -m uv run md2short run sample.md --images emotion/
+python -m uv run kaidanzip run sample.md --images emotion/
 ```
 
 1. 연출표와 이미지를 검사합니다. 문제가 있으면 음성을 만들기 전에 `[장면 N]` 오류로 멈춥니다.
@@ -82,12 +82,12 @@ python -m uv run md2short run sample.md --images emotion/
 
 | 명령 | 설명 |
 | --- | --- |
-| `md2short run <연출표.md> --images <폴더> [--yes] [--voice-id ID] [--speed 0.7~1.2]` | 새 영상 만들기 |
-| `md2short run <연출표.md> --ai-images [--yes]` | 모든 장면 이미지를 AI로 만들어 영상 만들기 |
-| `md2short regen-image <job_id> --scene N [--prompt "..."]` | 장면 이미지 1장 다시 만들기 → 이어서 `render` |
-| `md2short render <job_id> [--yes]` | 음성은 그대로 두고 다시 렌더 (TTS 호출 없음) |
-| `md2short subtitles <연출표.md>` | 음성을 만들기 전에 자막이 어떻게 나뉘는지 미리 보기 (TTS 호출 없음) |
-| `md2short status <job_id>` | job 상태 보기 |
+| `kaidanzip run <연출표.md> --images <폴더> [--yes] [--voice-id ID] [--speed 0.7~1.2]` | 새 영상 만들기 |
+| `kaidanzip run <연출표.md> --ai-images [--yes]` | 모든 장면 이미지를 AI로 만들어 영상 만들기 |
+| `kaidanzip regen-image <job_id> --scene N [--prompt "..."]` | 장면 이미지 1장 다시 만들기 → 이어서 `render` |
+| `kaidanzip render <job_id> [--yes]` | 음성은 그대로 두고 다시 렌더 (TTS 호출 없음) |
+| `kaidanzip subtitles <연출표.md>` | 음성을 만들기 전에 자막이 어떻게 나뉘는지 미리 보기 (TTS 호출 없음) |
+| `kaidanzip status <job_id>` | job 상태 보기 |
 
 ### 길이가 45~58초를 벗어날 때
 
@@ -98,7 +98,7 @@ python -m uv run md2short run sample.md --images emotion/
 ### 무료 리허설 (음성 없이)
 
 ```bash
-MD2SHORT_FAKE_TTS=synth python -m uv run md2short run sample.md --images emotion/ --yes
+KAIDANZIP_FAKE_TTS=synth python -m uv run kaidanzip run sample.md --images emotion/ --yes
 ```
 
 무음 내레이션으로 자막·장면 전환·렌더 흐름만 확인합니다. 비용이 들지 않습니다.
@@ -137,7 +137,7 @@ MD2SHORT_FAKE_TTS=synth python -m uv run md2short run sample.md --images emotion
 - **자막 분할:** 부산 장산의 전설 속 괴물, / ‘장산범’ 때문입니다. / 새하얀 털의 이 괴물은 / 사람 목소리를 똑같이 흉내 내어 / 사냥감을 부릅니다.
 ```
 
-`md2short subtitles sample.md`가 장면마다 붙여 넣을 수 있는 줄을 출력합니다. 자막은 각 덩어리의 첫 어절 시작부터 마지막 어절 끝까지 표시됩니다.
+`kaidanzip subtitles sample.md`가 장면마다 붙여 넣을 수 있는 줄을 출력합니다. 자막은 각 덩어리의 첫 어절 시작부터 마지막 어절 끝까지 표시됩니다.
 
 ### 장면 이미지
 

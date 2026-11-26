@@ -1,7 +1,7 @@
 import pytest
 
-from md2short.errors import InputValidationError
-from md2short.storyboard import find_highlight_range, norm, parse_storyboard
+from kaidanzip.errors import InputValidationError
+from kaidanzip.storyboard import find_highlight_range, norm, parse_storyboard
 
 EXPECTED_HIGHLIGHTS = {
     1: ["절대", "문을 열지 마세요"],
