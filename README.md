@@ -1,7 +1,10 @@
-# MD2Short
+# 괴담모음집 (kaidanzip)
 
-장면별 연출표 마크다운과 장면 이미지 폴더로 9:16 숏폼 MP4(1080×1920, 30fps)를 만드는 CLI입니다.
-ElevenLabs가 내레이션을 만들고, Remotion이 이미지 움직임·자막·배경음·효과음을 합성합니다.
+장면별 연출표 마크다운으로 괴담 쇼츠(9:16 MP4, 1080×1920, 30fps)를 만드는 도구입니다. 웹 화면과 명령줄(CLI)로 쓸 수 있습니다.
+ElevenLabs가 내레이션을 만들고, Remotion이 이미지 움직임·자막·배경음·효과음을 합성합니다. 장면 이미지는 직접 올리거나 AI로 만듭니다.
+
+> 영상 제작 엔진의 이름은 **MD2Short**입니다. 명령어(`md2short`)와 패키지 이름은 그대로 씁니다.
+> 각자 자기 PC에서 자기 API 키(ElevenLabs·OpenAI)로 실행하는 방식이라, 비용은 실행한 사람에게 청구됩니다.
 
 - 설계: [`docs/architecture.md`](docs/architecture.md) · 제품 요구: [`docs/PRD.md`](docs/PRD.md) · 작업 원칙: [`AGENTS.md`](AGENTS.md)
 
